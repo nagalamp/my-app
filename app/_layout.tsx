@@ -1,24 +1,62 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import { Slot } from "expo-router";
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import Toast from "react-native-toast-message";
 
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+import { SafeAreaProvider } from "react-native-safe-area-context";
+
+import { useFonts } from "expo-font";
+
+import {
+  Comfortaa_300Light,
+  Comfortaa_400Regular,
+  Comfortaa_500Medium,
+  Comfortaa_600SemiBold,
+  Comfortaa_700Bold,
+} from "@expo-google-fonts/comfortaa";
+
+import {
+  View,
+  ActivityIndicator,
+  StyleSheet,
+} from "react-native";
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  const [fontsLoaded] =
+    useFonts({
+      Comfortaa_300Light,
+      Comfortaa_400Regular,
+      Comfortaa_500Medium,
+      Comfortaa_600SemiBold,
+      Comfortaa_700Bold,
+    });
+
+  if (!fontsLoaded) {
+    return (
+      <View style={styles.loader}>
+        <ActivityIndicator
+          size="large"
+        />
+      </View>
+    );
+  }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <SafeAreaProvider>
+      <Slot />
+
+      <Toast />
+    </SafeAreaProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  loader: {
+    flex: 1,
+
+    justifyContent:
+      "center",
+
+    alignItems:
+      "center",
+  },
+});
