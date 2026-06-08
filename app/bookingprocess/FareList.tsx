@@ -7,6 +7,7 @@ import React, {
 import {
     View,
     Text,
+    Image,
     FlatList,
     TouchableOpacity,
     StyleSheet,
@@ -14,7 +15,6 @@ import {
 
 import {
     Ionicons,
-    MaterialCommunityIcons,
 } from "@expo/vector-icons";
 
 import { theme } from "../../theme";
@@ -58,59 +58,38 @@ export default function FareList({
         selectedVehicle ||
         localSelected;
 
-    const getVehicleIcon =
-        (
-            vehicleType: string
-        ) => {
-            switch (
-            vehicleType.toLowerCase()
-            ) {
-                case "bike":
-                    return (
-                        <MaterialCommunityIcons
-                            name="motorbike"
-                            size={36}
-                            color="#111827"
-                        />
-                    );
+    const getVehicleImage = (
+        vehicleType: string
+    ) => {
+        switch (
+        vehicleType.toLowerCase()
+        ) {
+            case "bike":
+                return require(
+                    "../../assets/vehicles/bike.png"
+                );
 
-                case "auto":
-                    return (
-                        <MaterialCommunityIcons
-                            name="rickshaw"
-                            size={36}
-                            color="#111827"
-                        />
-                    );
+            case "auto":
+                return require(
+                    "../../assets/vehicles/auto.png"
+                );
 
-                case "car":
-                    return (
-                        <Ionicons
-                            name="car-sport"
-                            size={34}
-                            color="#111827"
-                        />
-                    );
+            case "car":
+                return require(
+                    "../../assets/vehicles/car.png"
+                );
 
-                case "truck":
-                    return (
-                        <MaterialCommunityIcons
-                            name="truck"
-                            size={34}
-                            color="#111827"
-                        />
-                    );
+            case "truck":
+                return require(
+                    "../../assets/vehicles/truck.png"
+                );
 
-                default:
-                    return (
-                        <Ionicons
-                            name="car"
-                            size={34}
-                            color="#111827"
-                        />
-                    );
-            }
-        };
+            default:
+                return require(
+                    "../../assets/vehicles/car.png"
+                );
+        }
+    };
 
     const selectedFare =
         fares.find(
@@ -151,19 +130,21 @@ export default function FareList({
                     );
                 }}
             >
-                {/* Vehicle Icon */}
-
                 <View
                     style={
                         styles.iconContainer
                     }
                 >
-                    {getVehicleIcon(
-                        item.vehicleType
-                    )}
+                    <Image
+                        source={getVehicleImage(
+                            item.vehicleType
+                        )}
+                        style={
+                            styles.vehicleImage
+                        }
+                        resizeMode="contain"
+                    />
                 </View>
-
-                {/* Vehicle Info */}
 
                 <View
                     style={
@@ -176,9 +157,7 @@ export default function FareList({
                         }
                     >
                         {item.vehicleType
-                            .charAt(
-                                0
-                            )
+                            .charAt(0)
                             .toUpperCase() +
                             item.vehicleType.slice(
                                 1
@@ -190,36 +169,20 @@ export default function FareList({
                             styles.metaText
                         }
                     >
-                        Base Fare ₹
+                        Base ₹
                         {
                             item.baseFare
-                        }
-                    </Text>
-
-                    <Text
-                        style={
-                            styles.metaText
-                        }
-                    >
-                        Distance ₹
+                        }{" "}
+                        • Distance ₹
                         {
                             item.distanceFare
-                        }
-                    </Text>
-
-                    <Text
-                        style={
-                            styles.metaText
-                        }
-                    >
-                        Time ₹
+                        }{" "}
+                        • Time ₹
                         {
                             item.timeFare
                         }
                     </Text>
                 </View>
-
-                {/* Fare */}
 
                 <View
                     style={
@@ -326,9 +289,7 @@ export default function FareList({
                     >
                         Book{" "}
                         {selectedFare.vehicleType
-                            .charAt(
-                                0
-                            )
+                            .charAt(0)
                             .toUpperCase() +
                             selectedFare.vehicleType.slice(
                                 1
@@ -347,7 +308,7 @@ export default function FareList({
 const styles =
     StyleSheet.create({
         listContent: {
-            paddingBottom: 90,
+            paddingBottom: 80,
         },
 
         card: {
@@ -360,31 +321,18 @@ const styles =
             backgroundColor:
                 "#FFFFFF",
 
-            borderRadius: 18,
+            borderRadius: 12,
 
-            padding: 16,
+            paddingVertical: 8,
 
-            marginBottom: 12,
+            paddingHorizontal: 10,
+
+            marginBottom: 6,
 
             borderWidth: 1,
 
             borderColor:
                 "#E5E7EB",
-
-            shadowColor:
-                "#000",
-
-            shadowOffset: {
-                width: 0,
-                height: 2,
-            },
-
-            shadowOpacity:
-                0.05,
-
-            shadowRadius: 4,
-
-            elevation: 2,
         },
 
         selectedCard: {
@@ -399,14 +347,9 @@ const styles =
         },
 
         iconContainer: {
-            width: 64,
+            width: 52,
 
-            height: 64,
-
-            borderRadius: 32,
-
-            backgroundColor:
-                "#F8FAFC",
+            height: 52,
 
             justifyContent:
                 "center",
@@ -414,7 +357,13 @@ const styles =
             alignItems:
                 "center",
 
-            marginRight: 14,
+            marginRight: 10,
+        },
+
+        vehicleImage: {
+            width: 50,
+
+            height: 100,
         },
 
         infoContainer: {
@@ -422,22 +371,20 @@ const styles =
         },
 
         vehicleName: {
-            fontSize: 16,
+            fontSize: 14,
 
             fontWeight:
                 "700",
 
             color: "#111827",
 
-            marginBottom: 6,
+            marginBottom: 2,
         },
 
         metaText: {
-            fontSize: 12,
+            fontSize: 11,
 
             color: "#64748B",
-
-            marginBottom: 2,
         },
 
         priceContainer: {
@@ -446,10 +393,10 @@ const styles =
         },
 
         totalFare: {
-            fontSize: 22,
+            fontSize: 18,
 
             fontWeight:
-                "700",
+                "800",
 
             color:
                 theme.COLORS
@@ -457,20 +404,20 @@ const styles =
         },
 
         selectedBadge: {
-            marginTop: 6,
+            marginTop: 4,
 
             backgroundColor:
                 "#DCFCE7",
 
-            borderRadius: 10,
+            borderRadius: 8,
 
-            paddingHorizontal: 8,
+            paddingHorizontal: 6,
 
-            paddingVertical: 4,
+            paddingVertical: 2,
         },
 
         selectedBadgeText: {
-            fontSize: 11,
+            fontSize: 10,
 
             color: "#166534",
 
@@ -488,9 +435,9 @@ const styles =
 
             right: 0,
 
-            height: 58,
+            height: 52,
 
-            borderRadius: 14,
+            borderRadius: 12,
 
             justifyContent:
                 "center",
@@ -506,10 +453,10 @@ const styles =
         confirmButtonText: {
             color: "#FFFFFF",
 
-            fontSize: 16,
+            fontSize: 15,
 
             fontWeight:
-                "700",
+                "800",
         },
 
         emptyContainer: {
@@ -521,13 +468,13 @@ const styles =
             alignItems:
                 "center",
 
-            paddingVertical: 40,
+            paddingVertical: 30,
         },
 
         emptyText: {
-            marginTop: 12,
+            marginTop: 8,
 
-            fontSize: 15,
+            fontSize: 14,
 
             color: "#94A3B8",
         },

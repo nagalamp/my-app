@@ -148,15 +148,13 @@ export default function RouteMap({
                 showsUserLocation
                 showsMyLocationButton
                 loadingEnabled
-                initialRegion={{
+                region={{
                     latitude:
                         pickupLocation.latitude,
                     longitude:
                         pickupLocation.longitude,
-                    latitudeDelta:
-                        0.05,
-                    longitudeDelta:
-                        0.05,
+                    latitudeDelta: 0.05,
+                    longitudeDelta: 0.05,
                 }}
             >
                 {/* Pickup Marker */}
@@ -279,6 +277,41 @@ export default function RouteMap({
                 />
             </MapView>
 
+            <View style={styles.routeInfoContainer}>
+                <View style={styles.routeRow}>
+                    <View style={styles.pickupDot} />
+                    <Text
+                        numberOfLines={1}
+                        style={styles.addressText}
+                    >
+                        {pickupLocation.address}
+                    </Text>
+                </View>
+
+                <View style={styles.routeLine} />
+
+                <View style={styles.routeRow}>
+                    <View style={styles.dropDot} />
+
+                    <Text
+                        numberOfLines={1}
+                        style={styles.addressText}
+                    >
+                        {dropLocation.address}
+                    </Text>
+                </View>
+
+                <View style={styles.statsContainer}>
+                    <Text style={styles.statsText}>
+                        📏 {distance} km
+                    </Text>
+
+                    <Text style={styles.statsText}>
+                        ⏱ {duration} min
+                    </Text>
+                </View>
+            </View>
+
         </View>
     );
 }
@@ -350,4 +383,72 @@ const styles =
                     .text,
             marginTop: 2,
         },
+        routeInfoContainer: {
+            position: "absolute",
+            left: 12,
+            right: 12,
+            bottom: 12,
+            backgroundColor: "#FFD700",
+            borderRadius: 16,
+            padding: 10,
+            shadowColor: "#000",
+            shadowOffset: {
+                width: 0,
+                height: 2,
+            },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 5,
+        },
+
+        routeRow: {
+            flexDirection: "row",
+            alignItems: "center",
+        },
+
+        pickupDot: {
+            width: 10,
+            height: 10,
+            borderRadius: 5,
+            backgroundColor: "#22C55E",
+            marginRight: 12,
+        },
+
+        dropDot: {
+            width: 10,
+            height: 10,
+            borderRadius: 5,
+            backgroundColor: "#EF4444",
+            marginRight: 12,
+        },
+
+        routeLine: {
+            width: 2,
+            height: 4,
+            backgroundColor: "#D1D5DB",
+            marginLeft: 4,
+            marginVertical: 6,
+        },
+
+        addressText: {
+            flex: 1,
+            fontSize: 13,
+            color: "#111827",
+            fontWeight: "500",
+        },
+
+        statsContainer: {
+            flexDirection: "row",
+            justifyContent: "space-between",
+            marginTop: 0,
+            paddingTop: 6,
+            borderTopWidth: 1,
+            borderTopColor: "#E5E7EB",
+        },
+
+        statsText: {
+            fontSize: 15,
+            fontWeight: "800",
+            color: "#111827",
+        }
     });

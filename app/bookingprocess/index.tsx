@@ -172,21 +172,24 @@ export default function Sample() {
     };
 
     const handlePickupConfirmed = (
-        updatedPickup: LocationType
+        updatedLocation:
+            LocationType
     ) => {
         setPickupLocation(
-            updatedPickup
+            updatedLocation
+        );
+
+        setPickupText(
+            updatedLocation.address
         );
 
         setShowPickupModal(
             false
         );
 
-        setTimeout(() => {
-            setShowRideModal(
-                true
-            );
-        }, 300);
+        setShowRideModal(
+            true
+        );
     };
 
     const handleBookRide =
@@ -203,7 +206,7 @@ export default function Sample() {
             }
 
             Alert.alert(
-                "Ride Confirmed",
+                "Ride Confirmeds",
                 `Booking ${selectedFare.vehicleType}
                 
 Fare: ₹${selectedFare.totalFare}`
@@ -416,37 +419,6 @@ Fare: ₹${selectedFare.totalFare}`
                             </View>
                         )}
 
-                    {/* Trip Summary */}
-
-                    <View
-                        style={
-                            styles.tripSummary
-                        }
-                    >
-                        <Text
-                            style={
-                                styles.summaryText
-                            }
-                        >
-                            Distance:{" "}
-                            {
-                                distance
-                            }{" "}
-                            km
-                        </Text>
-
-                        <Text
-                            style={
-                                styles.summaryText
-                            }
-                        >
-                            Duration:{" "}
-                            {
-                                duration
-                            }{" "}
-                            min
-                        </Text>
-                    </View>
 
                     {/* Fare List */}
 
