@@ -3,7 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { theme } from "../../theme";
-import AppHeader from "../components/AppHeader";
+import AppHeader from "../components/app-header/AppHeader";
 
 export default function TabsLayout() {
     const insets = useSafeAreaInsets();
@@ -30,14 +30,12 @@ export default function TabsLayout() {
 
                     paddingBottom:
                         insets.bottom,
-
                     paddingTop: 5,
                 },
 
                 tabBarLabelStyle: {
                     fontFamily:
                         theme.FONT.medium,
-
                     fontSize: 12,
                 },
             }}

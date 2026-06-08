@@ -3,7 +3,7 @@
 export const theme = {
     COLORS: {
         // Brand Colors
-        primary: "#FFD700",
+        primary: "#000000",
         secondary: "#FF3300",
 
         // Backgrounds
@@ -13,7 +13,7 @@ export const theme = {
 
         // Text
         text: "#111111",
-        textSecondary: "#666666",
+        textSecondary: "#000000",
         textMuted: "#999999",
         textWhite: "#FFFFFF",
 
