@@ -6,8 +6,9 @@ import {
     View,
     Text,
     StyleSheet,
-    Modal,
     TouchableOpacity,
+    Modal,
+    Alert,
 } from "react-native";
 
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -20,6 +21,12 @@ import LocationInput, {
     LocationType,
 } from "./LocationInput";
 
+import RecentLocations, {
+    SavedRoute,
+} from "./RecentLocations";
+
+import ConfirmPickupLocationModal from "./ConfirmDropLocationModal";
+
 import RouteMap, {
     FareItem,
 } from "./RouteMap";
@@ -28,20 +35,56 @@ import FareList from "./FareList";
 
 import { theme } from "../../theme";
 
+const recentRoutes: SavedRoute[] = [
+    {
+        id: "1",
+        title: "Home → Office",
 
+        pickup: {
+            address:
+                "Kengeri, Bengaluru",
+            latitude:
+                12.8996676,
+            longitude:
+                77.4826837,
+        },
+
+        drop: {
+            address:
+                "Electronic City, Bengaluru",
+            latitude:
+                12.839935,
+            longitude:
+                77.677032,
+        },
+    },
+
+    {
+        id: "2",
+        title:
+            "Office → Airport",
+
+        pickup: {
+            address:
+                "Electronic City, Bengaluru",
+            latitude:
+                12.839935,
+            longitude:
+                77.677032,
+        },
+
+        drop: {
+            address:
+                "Kempegowda Airport",
+            latitude:
+                13.198635,
+            longitude:
+                77.706593,
+        },
+    },
+];
 
 export default function Sample() {
-
-    const [showBookingModal, setShowBookingModal] =
-        useState(false);
-
-    const [showConfirmModal, setShowConfirmModal] =
-        useState(false);
-
-    const [bookingFare, setBookingFare] =
-        useState<FareItem | null>(null);
-
-
     const [pickupText, setPickupText] =
         useState("");
 
@@ -49,187 +92,138 @@ export default function Sample() {
         useState("");
 
     const [pickupLocation, setPickupLocation] =
-        useState<LocationType | null>(null);
+        useState<LocationType | null>(
+            null
+        );
 
     const [dropLocation, setDropLocation] =
-        useState<LocationType | null>(null);
+        useState<LocationType | null>(
+            null
+        );
 
-    const [showMap, setShowMap] =
+    const [showPickupModal, setShowPickupModal] =
+        useState(false);
+
+    const [showRideModal, setShowRideModal] =
         useState(false);
 
     const [fares, setFares] =
         useState<FareItem[]>([]);
 
     const [selectedFare, setSelectedFare] =
-        useState<FareItem | null>(null);
+        useState<FareItem | null>(
+            null
+        );
+
+    const [distance, setDistance] =
+        useState(0);
+
+    const [duration, setDuration] =
+        useState(0);
 
     const handlePickupSelect = (
         location: LocationType
     ) => {
         setPickupLocation(location);
-        setPickupText(location.address);
 
-        if (dropLocation) {
-            setShowMap(true);
-        }
+        setPickupText(
+            location.address
+        );
     };
 
     const handleDropSelect = (
         location: LocationType
     ) => {
         setDropLocation(location);
-        setDropText(location.address);
+
+        setDropText(
+            location.address
+        );
 
         if (pickupLocation) {
-            setShowMap(true);
+            setShowPickupModal(
+                true
+            );
         }
     };
 
-    const handleBack = () => {
-        if (showMap) {
-            setShowMap(false);
-            return;
-        }
+    const handleRecentRouteSelect = (
+        route: SavedRoute
+    ) => {
+        setPickupLocation(
+            route.pickup
+        );
 
-        router.back();
+        setDropLocation(
+            route.drop
+        );
+
+        setPickupText(
+            route.pickup.address
+        );
+
+        setDropText(
+            route.drop.address
+        );
+
+        setShowPickupModal(
+            true
+        );
     };
+
+    const handlePickupConfirmed = (
+        updatedPickup: LocationType
+    ) => {
+        setPickupLocation(
+            updatedPickup
+        );
+
+        setShowPickupModal(
+            false
+        );
+
+        setTimeout(() => {
+            setShowRideModal(
+                true
+            );
+        }, 300);
+    };
+
+    const handleBookRide =
+        () => {
+            if (
+                !selectedFare
+            ) {
+                Alert.alert(
+                    "Select Vehicle",
+                    "Please select a ride."
+                );
+
+                return;
+            }
+
+            Alert.alert(
+                "Ride Confirmed",
+                `Booking ${selectedFare.vehicleType}
+                
+Fare: ₹${selectedFare.totalFare}`
+            );
+        };
 
     return (
         <>
-            <SafeAreaView style={styles.container}>
-                {/* Modal */}
+            <SafeAreaView
+                style={
+                    styles.container
+                }
+            >
+                {/* Header */}
 
-                <Modal
-                    visible={showConfirmModal}
-                    animationType="slide"
-                    presentationStyle="fullScreen"
+                <View
+                    style={
+                        styles.pageHeader
+                    }
                 >
-                    <SafeAreaView
-                        style={{
-                            flex: 1,
-                            backgroundColor: "#FFF",
-                        }}
-                    >
-                        {/* Header */}
-
-                        <View
-                            style={
-                                styles.confirmHeader
-                            }
-                        >
-                            <TouchableOpacity
-                                onPress={() =>
-                                    setShowConfirmModal(
-                                        false
-                                    )
-                                }
-                            >
-                                <Ionicons
-                                    name="arrow-back"
-                                    size={24}
-                                    color="#111827"
-                                />
-                            </TouchableOpacity>
-
-                            <Text
-                                style={
-                                    styles.confirmTitle
-                                }
-                            >
-                                Confirm Pickup
-                            </Text>
-
-                            <View
-                                style={{
-                                    width: 24,
-                                }}
-                            />
-                        </View>
-
-                        {/* Map */}
-
-                        <View
-                            style={{
-                                flex: 1,
-                            }}
-                        >
-                            {pickupLocation &&
-                                dropLocation && (
-                                    <RouteMap
-                                        pickupLocation={
-                                            pickupLocation
-                                        }
-                                        dropLocation={
-                                            dropLocation
-                                        }
-                                    />
-                                )}
-                        </View>
-
-                        {/* Bottom Sheet */}
-
-                        <View
-                            style={
-                                styles.bookingCard
-                            }
-                        >
-                            <Text
-                                style={
-                                    styles.bookingVehicle
-                                }
-                            >
-                                {selectedFare?.vehicleType?.toUpperCase()}
-                            </Text>
-
-                            <Text
-                                style={
-                                    styles.bookingAddress
-                                }
-                            >
-                                {
-                                    pickupLocation?.address
-                                }
-                            </Text>
-
-                            <Text
-                                style={
-                                    styles.bookingFare
-                                }
-                            >
-                                ₹
-                                {
-                                    selectedFare?.totalFare
-                                }
-                            </Text>
-
-                            <TouchableOpacity
-                                style={
-                                    styles.bookRideButton
-                                }
-                                onPress={() => {
-                                    console.log(
-                                        "BOOK RIDE"
-                                    );
-
-                                    setShowConfirmModal(
-                                        false
-                                    );
-                                }}
-                            >
-                                <Text
-                                    style={
-                                        styles.bookRideButtonText
-                                    }
-                                >
-                                    Confirm Pickup &
-                                    Book Ride
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-                    </SafeAreaView>
-                </Modal>
-
-                <View style={styles.pageHeader}>
                     <TouchableOpacity
                         onPress={() =>
                             router.back()
@@ -245,17 +239,27 @@ export default function Sample() {
                         />
                     </TouchableOpacity>
 
-                    <Text style={styles.title}>
+                    <Text
+                        style={
+                            styles.title
+                        }
+                    >
                         Choose Location
                     </Text>
                 </View>
 
+                {/* Pickup */}
+
                 <View
-                    style={styles.pickupContainer}
+                    style={
+                        styles.pickupContainer
+                    }
                 >
                     <LocationInput
                         placeholder="Enter pickup location"
-                        value={pickupText}
+                        value={
+                            pickupText
+                        }
                         onChangeText={
                             setPickupText
                         }
@@ -265,14 +269,24 @@ export default function Sample() {
                     />
                 </View>
 
-                <View style={styles.spacing} />
+                <View
+                    style={
+                        styles.spacing
+                    }
+                />
+
+                {/* Drop */}
 
                 <View
-                    style={styles.dropContainer}
+                    style={
+                        styles.dropContainer
+                    }
                 >
                     <LocationInput
                         placeholder="Where would you like to go?"
-                        value={dropText}
+                        value={
+                            dropText
+                        }
                         onChangeText={
                             setDropText
                         }
@@ -281,294 +295,276 @@ export default function Sample() {
                         }
                     />
                 </View>
+
+                {/* Recent Trips */}
+
+                <RecentLocations
+                    routes={
+                        recentRoutes
+                    }
+                    onSelectRoute={
+                        handleRecentRouteSelect
+                    }
+                />
             </SafeAreaView>
+
+            {/* Pickup Confirmation */}
+
+            <ConfirmPickupLocationModal
+                visible={
+                    showPickupModal
+                }
+                location={
+                    pickupLocation
+                }
+                onClose={() =>
+                    setShowPickupModal(
+                        false
+                    )
+                }
+                onConfirm={
+                    handlePickupConfirmed
+                }
+            />
+
+            {/* Ride Selection */}
 
             <Modal
                 visible={
-                    showMap &&
-                    !!pickupLocation &&
-                    !!dropLocation
+                    showRideModal
                 }
                 animationType="slide"
                 presentationStyle="fullScreen"
-                onRequestClose={
-                    handleBack
-                }
             >
                 <SafeAreaView
-                    style={
-                        styles.modalContainer
-                    }
+                    style={{
+                        flex: 1,
+                        backgroundColor:
+                            "#FFF",
+                    }}
                 >
-                    {/* Modal Header */}
+                    {/* Header */}
 
-                    <View style={styles.header}>
+                    <View
+                        style={
+                            styles.rideHeader
+                        }
+                    >
                         <TouchableOpacity
-                            style={
-                                styles.backButton
-                            }
-                            onPress={
-                                handleBack
+                            onPress={() =>
+                                setShowRideModal(
+                                    false
+                                )
                             }
                         >
                             <Ionicons
                                 name="arrow-back"
-                                size={26}
+                                size={24}
                                 color="#111827"
                             />
                         </TouchableOpacity>
 
                         <Text
                             style={
-                                styles.headerTitle
+                                styles.rideTitle
                             }
                         >
-                            Rides
+                            Choose Ride
                         </Text>
 
                         <View
                             style={{
-                                width: 40,
+                                width: 24,
                             }}
                         />
                     </View>
 
+                    {/* Route Map */}
+
                     {pickupLocation &&
                         dropLocation && (
-                            <>
-                                <View
-                                    style={
-                                        styles.routeMapContainer
+                            <View
+                                style={
+                                    styles.mapContainer
+                                }
+                            >
+                                <RouteMap
+                                    pickupLocation={
+                                        pickupLocation
                                     }
-                                >
-                                    <RouteMap
-                                        pickupLocation={
-                                            pickupLocation
-                                        }
-                                        dropLocation={
-                                            dropLocation
-                                        }
-                                        onRouteReady={(
-                                            routeDistance,
-                                            routeDuration,
+                                    dropLocation={
+                                        dropLocation
+                                    }
+                                    onRouteReady={(
+                                        routeDistance,
+                                        routeDuration,
+                                        fareData
+                                    ) => {
+                                        setDistance(
+                                            routeDistance
+                                        );
+
+                                        setDuration(
+                                            routeDuration
+                                        );
+
+                                        setFares(
                                             fareData
-                                        ) => {
-                                            console.log(
-                                                "Distance:",
-                                                routeDistance
-                                            );
-
-                                            console.log(
-                                                "Duration:",
-                                                routeDuration
-                                            );
-
-                                            console.log(
-                                                "Fare Data:",
-                                                fareData
-                                            );
-
-                                            setFares(
-                                                fareData
-                                            );
-                                        }}
-                                    />
-                                </View>
-
-                                <View
-                                    style={
-                                        styles.bottomContainer
-                                    }
-                                >
-                                    <Text
-                                        style={
-                                            styles.sectionTitle
-                                        }
-                                    >
-                                        Choose your Ride
-                                    </Text>
-
-                                    <View
-                                        style={
-                                            styles.fareContainer
-                                        }
-                                    >
-                                        <FareList
-                                            fares={fares}
-                                            selectedVehicle={
-                                                selectedFare?.vehicleType
-                                            }
-                                            onSelectFare={setSelectedFare}
-                                            onConfirmRide={(fare) => {
-                                                setSelectedFare(fare);
-                                                setShowConfirmModal(true);
-                                            }}
-                                        />
-                                    </View>
-                                </View>
-                            </>
+                                        );
+                                    }}
+                                />
+                            </View>
                         )}
+
+                    {/* Trip Summary */}
+
+                    <View
+                        style={
+                            styles.tripSummary
+                        }
+                    >
+                        <Text
+                            style={
+                                styles.summaryText
+                            }
+                        >
+                            Distance:{" "}
+                            {
+                                distance
+                            }{" "}
+                            km
+                        </Text>
+
+                        <Text
+                            style={
+                                styles.summaryText
+                            }
+                        >
+                            Duration:{" "}
+                            {
+                                duration
+                            }{" "}
+                            min
+                        </Text>
+                    </View>
+
+                    {/* Fare List */}
+
+                    <View
+                        style={{
+                            flex: 1,
+                            padding: 16,
+                        }}
+                    >
+                        <FareList
+                            fares={
+                                fares
+                            }
+                            selectedVehicle={
+                                selectedFare?.vehicleType
+                            }
+                            onSelectFare={
+                                setSelectedFare
+                            }
+                            onConfirmRide={() =>
+                                handleBookRide()
+                            }
+                        />
+                    </View>
                 </SafeAreaView>
             </Modal>
         </>
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: theme.SPACING.xl,
-        backgroundColor:
-            theme.COLORS.white,
-    },
+const styles =
+    StyleSheet.create({
+        container: {
+            flex: 1,
+            padding:
+                theme.SPACING.xl,
+            backgroundColor:
+                theme.COLORS
+                    .white,
+        },
 
-    pageHeader: {
-        flexDirection: "row",
-        alignItems: "center",
-        marginBottom: 20,
-    },
+        pageHeader: {
+            flexDirection:
+                "row",
+            alignItems:
+                "center",
+            marginBottom: 20,
+        },
 
-    pageBackButton: {
-        marginRight: 12,
-    },
+        pageBackButton: {
+            marginRight: 12,
+        },
 
-    title: {
-        fontSize:
-            theme.FONT_SIZES.xl,
-        fontWeight: "600",
-        color: theme.COLORS.text,
-    },
+        title: {
+            fontSize:
+                theme
+                    .FONT_SIZES
+                    .xl,
+            fontWeight: "700",
+            color:
+                theme.COLORS
+                    .text,
+        },
 
-    pickupContainer: {
-        zIndex: 2000,
-    },
+        pickupContainer: {
+            zIndex: 2000,
+        },
 
-    dropContainer: {
-        zIndex: 1000,
-    },
+        dropContainer: {
+            zIndex: 1000,
+        },
 
-    spacing: {
-        height: theme.SPACING.md,
-    },
+        spacing: {
+            height:
+                theme.SPACING
+                    .md,
+        },
 
-    modalContainer: {
-        flex: 1,
-        backgroundColor:
-            theme.COLORS.white,
-    },
+        rideHeader: {
+            height: 60,
+            flexDirection:
+                "row",
+            alignItems:
+                "center",
+            justifyContent:
+                "space-between",
+            paddingHorizontal: 16,
+            borderBottomWidth: 1,
+            borderBottomColor:
+                "#E5E7EB",
+        },
 
-    header: {
-        height: 60,
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent:
-            "space-between",
-        paddingHorizontal: 16,
-        borderBottomWidth: 1,
-        borderBottomColor:
-            "#E5E7EB",
-        backgroundColor: "#FFF",
-    },
+        rideTitle: {
+            fontSize: 18,
+            fontWeight:
+                "700",
+        },
 
-    backButton: {
-        width: 40,
-        height: 40,
-        justifyContent: "center",
-        alignItems: "center",
-    },
+        mapContainer: {
+            height: "40%",
+        },
 
-    headerTitle: {
-        fontSize:
-            theme.FONT_SIZES.lg,
-        fontWeight: "700",
-        color: theme.COLORS.text,
-    },
+        tripSummary: {
+            flexDirection:
+                "row",
+            justifyContent:
+                "space-between",
+            paddingHorizontal: 20,
+            paddingVertical: 12,
+            borderBottomWidth: 1,
+            borderBottomColor:
+                "#E5E7EB",
+        },
 
-    routeMapContainer: {
-        height: "40%",
-    },
-
-    bottomContainer: {
-        flex: 1,
-        padding: theme.SPACING.md,
-    },
-
-    sectionTitle: {
-        fontSize:
-            theme.FONT_SIZES.lg,
-        fontWeight: "700",
-        color: theme.COLORS.text,
-        marginBottom:
-            theme.SPACING.md,
-    },
-
-    fareContainer: {
-        flex: 1,
-    },
-
-    confirmHeader: {
-        height: 60,
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent:
-            "space-between",
-        paddingHorizontal: 16,
-        borderBottomWidth: 1,
-        borderBottomColor:
-            "#E5E7EB",
-    },
-
-    confirmTitle: {
-        fontSize: 18,
-        fontWeight: "700",
-        color:
-            theme.COLORS.text,
-    },
-
-    bookingCard: {
-        padding: 20,
-        backgroundColor: "#FFF",
-        borderTopLeftRadius: 24,
-        borderTopRightRadius: 24,
-        borderTopWidth: 1,
-        borderColor: "#E5E7EB",
-    },
-
-    bookingVehicle: {
-        fontSize: 22,
-        fontWeight: "700",
-        color:
-            theme.COLORS.text,
-    },
-
-    bookingAddress: {
-        marginTop: 8,
-        color: "#6B7280",
-        fontSize: 14,
-    },
-
-    bookingFare: {
-        marginTop: 12,
-        fontSize: 28,
-        fontWeight: "700",
-        color:
-            theme.COLORS.primary,
-    },
-
-    bookRideButton: {
-        height: 56,
-        marginTop: 20,
-        borderRadius: 14,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor:
-            theme.COLORS.primary,
-    },
-
-    bookRideButtonText: {
-        color:
-            theme.COLORS.white,
-        fontSize: 16,
-        fontWeight: "700",
-    },
-});
+        summaryText: {
+            fontSize: 15,
+            fontWeight:
+                "600",
+            color: "#111827",
+        },
+    });

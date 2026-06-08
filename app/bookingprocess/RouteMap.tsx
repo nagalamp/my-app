@@ -1,34 +1,27 @@
 // app/components/RouteMap.tsx
 
 import React, {
-    useEffect,
     useRef,
     useState,
 } from "react";
 
 import {
-    StyleSheet,
     View,
+    StyleSheet,
     Text,
 } from "react-native";
 
 import MapView, {
     Marker,
-    PROVIDER_GOOGLE,
 } from "react-native-maps";
 
 import MapViewDirections from "react-native-maps-directions";
-
-import axiosInstance from "../../api/axios";
-
-import { showError } from "../../utils/toast";
 
 import {
     LocationType,
 } from "./LocationInput";
 
-const GOOGLE_API_KEY =
-    process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY || "";
+import { theme } from "../../theme";
 
 export type FareItem = {
     vehicleType: string;
@@ -43,8 +36,8 @@ type Props = {
     dropLocation: LocationType;
 
     onRouteReady?: (
-        distance: number,
-        duration: number,
+        distanceKm: number,
+        durationMinutes: number,
         fares: FareItem[]
     ) => void;
 };
@@ -57,126 +50,89 @@ export default function RouteMap({
     const mapRef =
         useRef<MapView>(null);
 
-    const [routeInfo, setRouteInfo] =
-        useState({
-            distance: 0,
-            duration: 0,
-        });
+    const [distance, setDistance] =
+        useState(0);
 
-    const pickup = {
-        latitude:
-            pickupLocation.latitude,
-        longitude:
-            pickupLocation.longitude,
-    };
+    const [duration, setDuration] =
+        useState(0);
 
-    const drop = {
-        latitude:
-            dropLocation.latitude,
-        longitude:
-            dropLocation.longitude,
-    };
+    const generateFares = (
+        distanceKm: number,
+        durationMinutes: number
+    ): FareItem[] => {
+        const vehicles = [
+            {
+                vehicleType:
+                    "bike",
+                baseFare: 30,
+                perKmRate: 8,
+                perMinuteRate:
+                    0.5,
+            },
 
-    useEffect(() => {
-        if (
-            mapRef.current
-        ) {
-            mapRef.current.fitToCoordinates(
-                [pickup, drop],
-                {
-                    edgePadding: {
-                        top: 60,
-                        right: 60,
-                        bottom: 180,
-                        left: 60,
-                    },
-                    animated: true,
-                }
-            );
-        }
-    }, [
-        pickupLocation,
-        dropLocation,
-    ]);
+            {
+                vehicleType:
+                    "auto",
+                baseFare: 50,
+                perKmRate: 12,
+                perMinuteRate:
+                    1,
+            },
 
-    const fetchFareEstimate =
-        async (
-            distance: number,
-            duration: number
-        ) => {
-            try {
-                const payload = {
-                    pickup: {
-                        address:
-                            pickupLocation.address,
-                        latitude:
-                            pickupLocation.latitude,
-                        longitude:
-                            pickupLocation.longitude,
-                    },
+            {
+                vehicleType:
+                    "car",
+                baseFare: 80,
+                perKmRate: 16,
+                perMinuteRate:
+                    1.5,
+            },
 
-                    drop: {
-                        address:
-                            dropLocation.address,
-                        latitude:
-                            dropLocation.latitude,
-                        longitude:
-                            dropLocation.longitude,
-                    },
+            {
+                vehicleType:
+                    "truck",
+                baseFare: 150,
+                perKmRate: 25,
+                perMinuteRate:
+                    2,
+            },
+        ];
 
-                    distance,
-                    duration,
+        return vehicles.map(
+            (
+                vehicle
+            ) => {
+                const distanceFare =
+                    Math.round(
+                        distanceKm *
+                        vehicle.perKmRate
+                    );
+
+                const timeFare =
+                    Math.round(
+                        durationMinutes *
+                        vehicle.perMinuteRate
+                    );
+
+                return {
+                    vehicleType:
+                        vehicle.vehicleType,
+
+                    baseFare:
+                        vehicle.baseFare,
+
+                    distanceFare,
+
+                    timeFare,
+
+                    totalFare:
+                        vehicle.baseFare +
+                        distanceFare +
+                        timeFare,
                 };
-
-                const response =
-                    await axiosInstance.post(
-                        "/fare/estimate",
-                        payload
-                    );
-
-                if (
-                    response.data
-                        ?.success
-                ) {
-                    const fares: FareItem[] =
-                        response.data
-                            ?.fares || [];
-
-                    onRouteReady?.(
-                        distance,
-                        duration,
-                        fares
-                    );
-                } else {
-                    onRouteReady?.(
-                        distance,
-                        duration,
-                        []
-                    );
-                }
-            } catch (
-            error: any
-            ) {
-                console.log(
-                    "Fare Estimate Error:",
-                    error?.response
-                        ?.data || error
-                );
-
-                showError(
-                    error?.response
-                        ?.data
-                        ?.message ||
-                    "Unable to fetch fare estimate"
-                );
-
-                onRouteReady?.(
-                    distance,
-                    duration,
-                    []
-                );
             }
-        };
+        );
+    };
 
     return (
         <View
@@ -186,67 +142,119 @@ export default function RouteMap({
         >
             <MapView
                 ref={mapRef}
-                provider={
-                    PROVIDER_GOOGLE
+                style={
+                    styles.map
                 }
-                style={styles.map}
+                showsUserLocation
+                showsMyLocationButton
+                loadingEnabled
                 initialRegion={{
                     latitude:
-                        pickup.latitude,
+                        pickupLocation.latitude,
+
                     longitude:
-                        pickup.longitude,
+                        pickupLocation.longitude,
+
                     latitudeDelta:
                         0.05,
+
                     longitudeDelta:
                         0.05,
                 }}
             >
+                {/* Pickup */}
+
                 <Marker
-                    coordinate={
-                        pickup
-                    }
+                    coordinate={{
+                        latitude:
+                            pickupLocation.latitude,
+
+                        longitude:
+                            pickupLocation.longitude,
+                    }}
                     title="Pickup"
                     description={
                         pickupLocation.address
                     }
-                    pinColor="#22C55E"
+                    pinColor="green"
                 />
 
+                {/* Destination */}
+
                 <Marker
-                    coordinate={
-                        drop
-                    }
-                    title="Drop"
+                    coordinate={{
+                        latitude:
+                            dropLocation.latitude,
+
+                        longitude:
+                            dropLocation.longitude,
+                    }}
+                    title="Destination"
                     description={
                         dropLocation.address
                     }
-                    pinColor="#EF4444"
+                    pinColor="red"
                 />
 
+                {/* Actual Road Route */}
+
                 <MapViewDirections
-                    origin={
-                        pickup
-                    }
-                    destination={
-                        drop
-                    }
+                    origin={{
+                        latitude:
+                            pickupLocation.latitude,
+
+                        longitude:
+                            pickupLocation.longitude,
+                    }}
+                    destination={{
+                        latitude:
+                            dropLocation.latitude,
+
+                        longitude:
+                            dropLocation.longitude,
+                    }}
                     apikey={
-                        GOOGLE_API_KEY
+                        process.env
+                            .EXPO_PUBLIC_GOOGLE_MAPS_API_KEY!
                     }
-                    strokeWidth={5}
+                    strokeWidth={
+                        5
+                    }
                     strokeColor="#2563EB"
                     optimizeWaypoints
-                    onReady={async (
+                    onReady={(
                         result
                     ) => {
-                        setRouteInfo(
-                            {
-                                distance:
-                                    result.distance,
+                        const routeDistance =
+                            Number(
+                                result.distance.toFixed(
+                                    2
+                                )
+                            );
 
-                                duration:
-                                    result.duration,
-                            }
+                        const routeDuration =
+                            Math.round(
+                                result.duration
+                            );
+
+                        setDistance(
+                            routeDistance
+                        );
+
+                        setDuration(
+                            routeDuration
+                        );
+
+                        const fares =
+                            generateFares(
+                                routeDistance,
+                                routeDuration
+                            );
+
+                        onRouteReady?.(
+                            routeDistance,
+                            routeDuration,
+                            fares
                         );
 
                         mapRef.current?.fitToCoordinates(
@@ -254,125 +262,79 @@ export default function RouteMap({
                             {
                                 edgePadding:
                                 {
-                                    top: 60,
+                                    top: 100,
                                     right: 60,
-                                    bottom: 180,
+                                    bottom: 100,
                                     left: 60,
                                 },
-                                animated: true,
-                            }
-                        );
 
-                        await fetchFareEstimate(
-                            result.distance,
-                            result.duration
+                                animated:
+                                    true,
+                            }
                         );
                     }}
                     onError={(
-                        errorMessage
+                        error
                     ) => {
                         console.log(
                             "Directions Error:",
-                            errorMessage
-                        );
-
-                        showError(
-                            "Unable to load route"
+                            error
                         );
                     }}
                 />
             </MapView>
 
-            {routeInfo.distance >
-                0 && (
-                    <View
+            {/* Distance & Duration */}
+
+            <View
+                style={
+                    styles.summaryContainer
+                }
+            >
+                <View
+                    style={
+                        styles.summaryCard
+                    }
+                >
+                    <Text
                         style={
-                            styles.statsContainer
+                            styles.label
                         }
                     >
-                        {/* Trip Details Card */}
-                        <View
-                            style={
-                                styles.summaryCard
-                            }
-                        >
-                            <Text
-                                style={
-                                    styles.cardTitle
-                                }
-                            >
-                                Trip Details
-                            </Text>
+                        Distance
+                    </Text>
 
-                            <Text
-                                style={
-                                    styles.cardValue
-                                }
-                            >
-                                📍{" "}
-                                {routeInfo.distance.toFixed(
-                                    1
-                                )}{" "}
-                                km
-                            </Text>
+                    <Text
+                        style={
+                            styles.value
+                        }
+                    >
+                        {distance} km
+                    </Text>
+                </View>
 
-                            <Text
-                                style={
-                                    styles.cardValue
-                                }
-                            >
-                                ⏱{" "}
-                                {Math.round(
-                                    routeInfo.duration
-                                )}{" "}
-                                min
-                            </Text>
-                        </View>
+                <View
+                    style={
+                        styles.summaryCard
+                    }
+                >
+                    <Text
+                        style={
+                            styles.label
+                        }
+                    >
+                        Duration
+                    </Text>
 
-                        {/* Route Card */}
-                        <View
-                            style={
-                                styles.routeCard
-                            }
-                        >
-                            <Text
-                                style={
-                                    styles.cardTitle
-                                }
-                            >
-                                Route
-                            </Text>
-
-                            <Text
-                                style={
-                                    styles.locationText
-                                }
-                                numberOfLines={
-                                    1
-                                }
-                            >
-                                🟢{" "}
-                                {
-                                    pickupLocation.address
-                                }
-                            </Text>
-
-                            <Text
-                                style={
-                                    styles.locationText
-                                }
-                                numberOfLines={
-                                    1
-                                }
-                            >
-                                🔴{" "}
-                                {
-                                    dropLocation.address
-                                }
-                            </Text>
-                        </View>
-                    </View>
-                )}
+                    <Text
+                        style={
+                            styles.value
+                        }
+                    >
+                        {duration} min
+                    </Text>
+                </View>
+            </View>
         </View>
     );
 }
@@ -387,114 +349,60 @@ const styles =
             flex: 1,
         },
 
-        statsContainer:
-        {
+        summaryContainer: {
             position:
                 "absolute",
 
-            bottom: 20,
+            top: 16,
 
-            left: 15,
+            left: 16,
 
-            right: 15,
+            right: 16,
 
             flexDirection:
                 "row",
 
-            zIndex:
-                1000,
+            justifyContent:
+                "space-between",
         },
 
         summaryCard: {
-            width: 120,
-
             backgroundColor:
                 "#FFFFFF",
 
-            borderRadius:
-                12,
+            paddingHorizontal: 16,
 
-            padding: 10,
+            paddingVertical: 10,
 
-            marginRight: 8,
+            borderRadius: 12,
 
             shadowColor:
                 "#000",
 
-            shadowOffset:
-            {
+            shadowOffset: {
                 width: 0,
                 height: 2,
             },
 
             shadowOpacity:
-                0.12,
+                0.1,
 
-            shadowRadius:
-                3,
+            shadowRadius: 4,
 
-            elevation: 4,
+            elevation: 3,
         },
 
-        routeCard: {
-            flex: 1,
-
-            backgroundColor:
-                "#FFFFFF",
-
-            borderRadius:
-                12,
-
-            padding: 10,
-
-            shadowColor:
-                "#000",
-
-            shadowOffset:
-            {
-                width: 0,
-                height: 2,
-            },
-
-            shadowOpacity:
-                0.12,
-
-            shadowRadius:
-                3,
-
-            elevation: 4,
+        label: {
+            fontSize: 12,
+            color: "#64748B",
         },
 
-        cardTitle: {
-            fontSize: 11,
-
+        value: {
+            fontSize: 16,
             fontWeight:
                 "700",
-
             color:
-                "#111827",
-
-            marginBottom: 6,
-        },
-
-        cardValue: {
-            fontSize: 13,
-
-            fontWeight:
-                "600",
-
-            color:
-                "#374151",
-
-            marginBottom: 3,
-        },
-
-        locationText: {
-            fontSize: 12,
-
-            color:
-                "#374151",
-
-            marginBottom: 4,
+                theme.COLORS
+                    .text,
         },
     });

@@ -1,16 +1,19 @@
 // app/components/FareList.tsx
 
-import React, { useState } from "react";
+import React, {
+    useState,
+} from "react";
 
 import {
-    FlatList,
-    Text,
-    TouchableOpacity,
     View,
+    Text,
+    FlatList,
+    TouchableOpacity,
     StyleSheet,
 } from "react-native";
 
 import {
+    Ionicons,
     MaterialCommunityIcons,
 } from "@expo/vector-icons";
 
@@ -18,9 +21,13 @@ import { theme } from "../../theme";
 
 export type FareItem = {
     vehicleType: string;
+
     baseFare: number;
+
     distanceFare: number;
+
     timeFare: number;
+
     totalFare: number;
 };
 
@@ -55,33 +62,59 @@ export default function FareList({
         selectedVehicle ||
         localSelected;
 
-    const getVehicleIcon = (
-        vehicleType: string
-    ) => {
-        switch (
-        vehicleType?.toLowerCase()
-        ) {
-            case "bike":
-                return "motorbike";
+    const getVehicleIcon =
+        (
+            vehicleType: string
+        ) => {
+            switch (
+            vehicleType.toLowerCase()
+            ) {
+                case "bike":
+                    return (
+                        <MaterialCommunityIcons
+                            name="motorbike"
+                            size={34}
+                            color="#111827"
+                        />
+                    );
 
-            case "auto":
-                return "rickshaw";
+                case "auto":
+                    return (
+                        <MaterialCommunityIcons
+                            name="rickshaw"
+                            size={34}
+                            color="#111827"
+                        />
+                    );
 
-            case "truck":
-                return "truck";
+                case "car":
+                    return (
+                        <Ionicons
+                            name="car-sport"
+                            size={34}
+                            color="#111827"
+                        />
+                    );
 
-            case "car":
-            default:
-                return "car";
-        }
-    };
+                case "truck":
+                    return (
+                        <Ionicons
+                            name="bus"
+                            size={34}
+                            color="#111827"
+                        />
+                    );
 
-    const selectedFare =
-        fares.find(
-            (fare) =>
-                fare.vehicleType ===
-                selected
-        );
+                default:
+                    return (
+                        <Ionicons
+                            name="car"
+                            size={34}
+                            color="#111827"
+                        />
+                    );
+            }
+        };
 
     const renderItem = ({
         item,
@@ -95,10 +128,11 @@ export default function FareList({
         return (
             <TouchableOpacity
                 activeOpacity={
-                    0.8
+                    0.85
                 }
                 style={[
                     styles.card,
+
                     isSelected &&
                     styles.selectedCard,
                 ]}
@@ -112,28 +146,23 @@ export default function FareList({
                     );
                 }}
             >
+                {/* Vehicle Icon */}
+
                 <View
                     style={
                         styles.iconContainer
                     }
                 >
-                    <MaterialCommunityIcons
-                        name={
-                            getVehicleIcon(
-                                item.vehicleType
-                            ) as any
-                        }
-                        size={36}
-                        color={
-                            theme.COLORS
-                                .primary
-                        }
-                    />
+                    {getVehicleIcon(
+                        item.vehicleType
+                    )}
                 </View>
+
+                {/* Vehicle Details */}
 
                 <View
                     style={
-                        styles.leftSection
+                        styles.details
                     }
                 >
                     <Text
@@ -156,7 +185,7 @@ export default function FareList({
                             styles.subText
                         }
                     >
-                        Base Fare: ₹
+                        Base Fare ₹
                         {
                             item.baseFare
                         }
@@ -167,11 +196,10 @@ export default function FareList({
                             styles.subText
                         }
                     >
-                        Distance Fare:
-                        ₹
-                        {Math.round(
+                        Distance ₹
+                        {
                             item.distanceFare
-                        )}
+                        }
                     </Text>
 
                     <Text
@@ -179,16 +207,18 @@ export default function FareList({
                             styles.subText
                         }
                     >
-                        Time Fare: ₹
-                        {Math.round(
+                        Time ₹
+                        {
                             item.timeFare
-                        )}
+                        }
                     </Text>
                 </View>
 
+                {/* Fare */}
+
                 <View
                     style={
-                        styles.rightSection
+                        styles.fareSection
                     }
                 >
                     <Text
@@ -203,42 +233,40 @@ export default function FareList({
                     </Text>
 
                     {isSelected && (
-                        <Text
+                        <View
                             style={
-                                styles.selectedText
+                                styles.selectedBadge
                             }
                         >
-                            ✓ Selected
-                        </Text>
+                            <Text
+                                style={
+                                    styles.selectedText
+                                }
+                            >
+                                Selected
+                            </Text>
+                        </View>
                     )}
                 </View>
             </TouchableOpacity>
         );
     };
 
-    if (
-        !fares ||
-        fares.length === 0
-    ) {
-        return (
-            <View
-                style={
-                    styles.emptyContainer
-                }
-            >
-                <Text
-                    style={
-                        styles.emptyText
-                    }
-                >
-                    No fares available
-                </Text>
-            </View>
+    const selectedFare =
+        fares.find(
+            (
+                fare
+            ) =>
+                fare.vehicleType ===
+                selected
         );
-    }
 
     return (
-        <View style={{ flex: 1 }}>
+        <View
+            style={{
+                flex: 1,
+            }}
+        >
             <FlatList
                 data={fares}
                 keyExtractor={(
@@ -273,9 +301,9 @@ export default function FareList({
                             styles.confirmButtonText
                         }
                     >
-                        Confirm Ride • ₹
+                        Continue with{" "}
                         {
-                            selectedFare.totalFare
+                            selectedFare.vehicleType
                         }
                     </Text>
                 </TouchableOpacity>
@@ -287,50 +315,29 @@ export default function FareList({
 const styles =
     StyleSheet.create({
         listContent: {
-            paddingBottom: 10,
+            paddingBottom: 100,
         },
 
         card: {
-            backgroundColor:
-                theme.COLORS
-                    .white,
-
-            borderRadius: 16,
-
-            padding:
-                theme.SPACING
-                    .md,
-
-            marginBottom:
-                theme.SPACING
-                    .sm,
-
             flexDirection:
                 "row",
 
             alignItems:
                 "center",
 
+            backgroundColor:
+                "#FFFFFF",
+
+            borderRadius: 16,
+
+            padding: 16,
+
+            marginBottom: 12,
+
             borderWidth: 1,
 
             borderColor:
-                theme.COLORS
-                    .border,
-
-            shadowColor:
-                "#000",
-
-            shadowOffset: {
-                width: 0,
-                height: 2,
-            },
-
-            shadowOpacity:
-                0.08,
-
-            shadowRadius: 4,
-
-            elevation: 2,
+                "#E5E7EB",
         },
 
         selectedCard: {
@@ -341,7 +348,7 @@ const styles =
             borderWidth: 2,
 
             backgroundColor:
-                "#FFFDF2",
+                "#FFFDF5",
         },
 
         iconContainer: {
@@ -358,53 +365,41 @@ const styles =
                 "center",
 
             backgroundColor:
-                "#F3F4F6",
+                "#F8FAFC",
 
-            marginRight: 12,
+            marginRight: 14,
         },
 
-        leftSection: {
+        details: {
             flex: 1,
         },
 
-        rightSection: {
-            alignItems:
-                "flex-end",
-        },
-
         vehicleName: {
-            fontSize:
-                theme
-                    .FONT_SIZES
-                    .lg,
+            fontSize: 16,
 
             fontWeight:
                 "700",
 
-            color:
-                theme.COLORS
-                    .text,
+            color: "#111827",
 
             marginBottom: 6,
         },
 
         subText: {
-            fontSize:
-                theme
-                    .FONT_SIZES
-                    .sm,
+            fontSize: 12,
 
-            color:
-                theme.COLORS
-                    .text,
-
-            opacity: 0.7,
+            color: "#64748B",
 
             marginBottom: 2,
         },
 
+        fareSection: {
+            alignItems:
+                "flex-end",
+        },
+
         totalFare: {
-            fontSize: 24,
+            fontSize: 22,
 
             fontWeight:
                 "700",
@@ -414,19 +409,39 @@ const styles =
                     .primary,
         },
 
-        selectedText: {
-            marginTop: 4,
+        selectedBadge: {
+            marginTop: 6,
 
-            color:
-                theme.COLORS
-                    .success,
+            paddingHorizontal: 10,
+
+            paddingVertical: 4,
+
+            borderRadius: 10,
+
+            backgroundColor:
+                "#DCFCE7",
+        },
+
+        selectedText: {
+            color: "#166534",
+
+            fontSize: 11,
 
             fontWeight:
                 "700",
         },
 
         confirmButton: {
-            height: 56,
+            position:
+                "absolute",
+
+            bottom: 0,
+
+            left: 0,
+
+            right: 0,
+
+            height: 58,
 
             borderRadius: 14,
 
@@ -439,39 +454,14 @@ const styles =
             backgroundColor:
                 theme.COLORS
                     .primary,
-
-            marginTop: 10,
         },
 
         confirmButtonText: {
-            color:
-                theme.COLORS
-                    .white,
+            color: "#FFFFFF",
 
             fontSize: 16,
 
             fontWeight:
                 "700",
-        },
-
-        emptyContainer: {
-            flex: 1,
-
-            justifyContent:
-                "center",
-
-            alignItems:
-                "center",
-        },
-
-        emptyText: {
-            fontSize:
-                theme
-                    .FONT_SIZES
-                    .md,
-
-            color:
-                theme.COLORS
-                    .text,
         },
     });
