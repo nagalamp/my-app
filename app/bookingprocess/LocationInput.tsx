@@ -27,6 +27,7 @@ export type LocationType = {
 
 type Props = {
   placeholder: string;
+
   value: string;
 
   onChangeText: (
@@ -57,17 +58,18 @@ export default function LocationInput({
     }
   }, [value]);
 
-  const handleClear = () => {
-    onChangeText("");
+  const handleClear =
+    () => {
+      onChangeText("");
 
-    if (
-      inputRef.current
-    ) {
-      inputRef.current.setAddressText(
-        ""
-      );
-    }
-  };
+      if (
+        inputRef.current
+      ) {
+        inputRef.current.setAddressText(
+          ""
+        );
+      }
+    };
 
   return (
     <View
@@ -77,7 +79,7 @@ export default function LocationInput({
     >
       <View
         style={
-          styles.inputContainer
+          styles.inputWrapper
         }
       >
         <GooglePlacesAutocomplete
@@ -86,11 +88,11 @@ export default function LocationInput({
             placeholder
           }
           fetchDetails
+          debounce={300}
+          minLength={2}
           enablePoweredByContainer={
             false
           }
-          debounce={300}
-          minLength={2}
           nearbyPlacesAPI="GooglePlacesSearch"
           query={{
             key: process.env
@@ -110,7 +112,7 @@ export default function LocationInput({
             )
               return;
 
-            const location =
+            const location: LocationType =
             {
               address:
                 data.description,
@@ -135,17 +137,40 @@ export default function LocationInput({
           textInputProps={{
             value,
             onChangeText,
+            placeholderTextColor:
+              "#94A3B8",
           }}
           styles={{
-            textInput:
-              styles.input,
-
             container:
               styles.autocompleteContainer,
 
+            textInput:
+              styles.input,
+
             listView:
               styles.listView,
+
+            row:
+              styles.row,
+
+            separator:
+              styles.separator,
           }}
+          renderLeftButton={() => (
+            <View
+              style={
+                styles.leftIcon
+              }
+            >
+              <Ionicons
+                name="location-outline"
+                size={
+                  20
+                }
+                color="#64748B"
+              />
+            </View>
+          )}
         />
 
         {value.length >
@@ -160,7 +185,9 @@ export default function LocationInput({
             >
               <Ionicons
                 name="close-circle"
-                size={22}
+                size={
+                  22
+                }
                 color="#94A3B8"
               />
             </TouchableOpacity>
@@ -176,7 +203,7 @@ const styles =
       width: "100%",
     },
 
-    inputContainer: {
+    inputWrapper: {
       position:
         "relative",
     },
@@ -187,23 +214,37 @@ const styles =
     },
 
     input: {
-      height: 56,
+      height: 58,
 
       borderWidth: 1,
 
       borderColor:
         "#E5E7EB",
 
-      borderRadius: 12,
+      borderRadius: 14,
 
-      paddingLeft: 16,
+      backgroundColor:
+        "#FFFFFF",
+
+      paddingLeft: 48,
 
       paddingRight: 45,
 
-      fontSize: 16,
+      fontSize: 15,
 
-      backgroundColor:
-        "#FFF",
+      color:
+        "#111827",
+    },
+
+    leftIcon: {
+      position:
+        "absolute",
+
+      left: 14,
+
+      top: 18,
+
+      zIndex: 1000,
     },
 
     clearButton: {
@@ -212,27 +253,52 @@ const styles =
 
       right: 14,
 
-      top: 17,
+      top: 18,
 
       zIndex: 9999,
     },
 
     listView: {
+      marginTop: 6,
+
+      borderRadius: 14,
+
       backgroundColor:
-        "#FFF",
+        "#FFFFFF",
 
-      borderRadius: 12,
+      borderWidth: 1,
 
-      marginTop: 4,
+      borderColor:
+        "#E5E7EB",
 
       elevation: 5,
 
       shadowColor:
         "#000",
 
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+
       shadowOpacity:
         0.1,
 
-      shadowRadius: 5,
+      shadowRadius: 6,
+
+      maxHeight: 300,
+    },
+
+    row: {
+      paddingVertical: 14,
+
+      paddingHorizontal: 16,
+    },
+
+    separator: {
+      height: 1,
+
+      backgroundColor:
+        "#F1F5F9",
     },
   });

@@ -7,8 +7,8 @@ import React, {
 
 import {
     View,
-    StyleSheet,
     Text,
+    StyleSheet,
 } from "react-native";
 
 import MapView, {
@@ -56,7 +56,7 @@ export default function RouteMap({
     const [duration, setDuration] =
         useState(0);
 
-    const generateFares = (
+    const calculateFares = (
         distanceKm: number,
         durationMinutes: number
     ): FareItem[] => {
@@ -151,24 +151,20 @@ export default function RouteMap({
                 initialRegion={{
                     latitude:
                         pickupLocation.latitude,
-
                     longitude:
                         pickupLocation.longitude,
-
                     latitudeDelta:
                         0.05,
-
                     longitudeDelta:
                         0.05,
                 }}
             >
-                {/* Pickup */}
+                {/* Pickup Marker */}
 
                 <Marker
                     coordinate={{
                         latitude:
                             pickupLocation.latitude,
-
                         longitude:
                             pickupLocation.longitude,
                     }}
@@ -179,37 +175,35 @@ export default function RouteMap({
                     pinColor="green"
                 />
 
-                {/* Destination */}
+                {/* Drop Marker */}
 
                 <Marker
                     coordinate={{
                         latitude:
                             dropLocation.latitude,
-
                         longitude:
                             dropLocation.longitude,
                     }}
-                    title="Destination"
+                    title="Drop"
                     description={
                         dropLocation.address
                     }
                     pinColor="red"
                 />
 
-                {/* Actual Road Route */}
+                {/* Actual Route */}
 
                 <MapViewDirections
+                    key={`${pickupLocation.latitude}-${pickupLocation.longitude}-${dropLocation.latitude}-${dropLocation.longitude}`}
                     origin={{
                         latitude:
                             pickupLocation.latitude,
-
                         longitude:
                             pickupLocation.longitude,
                     }}
                     destination={{
                         latitude:
                             dropLocation.latitude,
-
                         longitude:
                             dropLocation.longitude,
                     }}
@@ -222,6 +216,8 @@ export default function RouteMap({
                     }
                     strokeColor="#2563EB"
                     optimizeWaypoints
+                    resetOnChange={false}
+                    mode="DRIVING"
                     onReady={(
                         result
                     ) => {
@@ -246,7 +242,7 @@ export default function RouteMap({
                         );
 
                         const fares =
-                            generateFares(
+                            calculateFares(
                                 routeDistance,
                                 routeDuration
                             );
@@ -262,12 +258,11 @@ export default function RouteMap({
                             {
                                 edgePadding:
                                 {
-                                    top: 100,
+                                    top: 120,
                                     right: 60,
-                                    bottom: 100,
+                                    bottom: 220,
                                     left: 60,
                                 },
-
                                 animated:
                                     true,
                             }
@@ -284,57 +279,6 @@ export default function RouteMap({
                 />
             </MapView>
 
-            {/* Distance & Duration */}
-
-            <View
-                style={
-                    styles.summaryContainer
-                }
-            >
-                <View
-                    style={
-                        styles.summaryCard
-                    }
-                >
-                    <Text
-                        style={
-                            styles.label
-                        }
-                    >
-                        Distance
-                    </Text>
-
-                    <Text
-                        style={
-                            styles.value
-                        }
-                    >
-                        {distance} km
-                    </Text>
-                </View>
-
-                <View
-                    style={
-                        styles.summaryCard
-                    }
-                >
-                    <Text
-                        style={
-                            styles.label
-                        }
-                    >
-                        Duration
-                    </Text>
-
-                    <Text
-                        style={
-                            styles.value
-                        }
-                    >
-                        {duration} min
-                    </Text>
-                </View>
-            </View>
         </View>
     );
 }
@@ -353,7 +297,7 @@ const styles =
             position:
                 "absolute",
 
-            top: 16,
+            top: 20,
 
             left: 16,
 
@@ -370,11 +314,11 @@ const styles =
             backgroundColor:
                 "#FFFFFF",
 
-            paddingHorizontal: 16,
+            paddingHorizontal: 18,
 
-            paddingVertical: 10,
+            paddingVertical: 12,
 
-            borderRadius: 12,
+            borderRadius: 14,
 
             shadowColor:
                 "#000",
@@ -385,11 +329,11 @@ const styles =
             },
 
             shadowOpacity:
-                0.1,
+                0.08,
 
             shadowRadius: 4,
 
-            elevation: 3,
+            elevation: 4,
         },
 
         label: {
@@ -404,5 +348,6 @@ const styles =
             color:
                 theme.COLORS
                     .text,
+            marginTop: 2,
         },
     });

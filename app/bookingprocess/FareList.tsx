@@ -21,13 +21,9 @@ import { theme } from "../../theme";
 
 export type FareItem = {
     vehicleType: string;
-
     baseFare: number;
-
     distanceFare: number;
-
     timeFare: number;
-
     totalFare: number;
 };
 
@@ -73,7 +69,7 @@ export default function FareList({
                     return (
                         <MaterialCommunityIcons
                             name="motorbike"
-                            size={34}
+                            size={36}
                             color="#111827"
                         />
                     );
@@ -82,7 +78,7 @@ export default function FareList({
                     return (
                         <MaterialCommunityIcons
                             name="rickshaw"
-                            size={34}
+                            size={36}
                             color="#111827"
                         />
                     );
@@ -98,8 +94,8 @@ export default function FareList({
 
                 case "truck":
                     return (
-                        <Ionicons
-                            name="bus"
+                        <MaterialCommunityIcons
+                            name="truck"
                             size={34}
                             color="#111827"
                         />
@@ -115,6 +111,15 @@ export default function FareList({
                     );
             }
         };
+
+    const selectedFare =
+        fares.find(
+            (
+                fare
+            ) =>
+                fare.vehicleType ===
+                selected
+        );
 
     const renderItem = ({
         item,
@@ -158,11 +163,11 @@ export default function FareList({
                     )}
                 </View>
 
-                {/* Vehicle Details */}
+                {/* Vehicle Info */}
 
                 <View
                     style={
-                        styles.details
+                        styles.infoContainer
                     }
                 >
                     <Text
@@ -182,7 +187,7 @@ export default function FareList({
 
                     <Text
                         style={
-                            styles.subText
+                            styles.metaText
                         }
                     >
                         Base Fare ₹
@@ -193,7 +198,7 @@ export default function FareList({
 
                     <Text
                         style={
-                            styles.subText
+                            styles.metaText
                         }
                     >
                         Distance ₹
@@ -204,7 +209,7 @@ export default function FareList({
 
                     <Text
                         style={
-                            styles.subText
+                            styles.metaText
                         }
                     >
                         Time ₹
@@ -218,7 +223,7 @@ export default function FareList({
 
                 <View
                     style={
-                        styles.fareSection
+                        styles.priceContainer
                     }
                 >
                     <Text
@@ -240,7 +245,7 @@ export default function FareList({
                         >
                             <Text
                                 style={
-                                    styles.selectedText
+                                    styles.selectedBadgeText
                                 }
                             >
                                 Selected
@@ -252,14 +257,32 @@ export default function FareList({
         );
     };
 
-    const selectedFare =
-        fares.find(
-            (
-                fare
-            ) =>
-                fare.vehicleType ===
-                selected
+    if (
+        !fares ||
+        fares.length === 0
+    ) {
+        return (
+            <View
+                style={
+                    styles.emptyContainer
+                }
+            >
+                <Ionicons
+                    name="car-outline"
+                    size={50}
+                    color="#CBD5E1"
+                />
+
+                <Text
+                    style={
+                        styles.emptyText
+                    }
+                >
+                    No rides available
+                </Text>
+            </View>
         );
+    }
 
     return (
         <View
@@ -301,9 +324,18 @@ export default function FareList({
                             styles.confirmButtonText
                         }
                     >
-                        Continue with{" "}
+                        Book{" "}
+                        {selectedFare.vehicleType
+                            .charAt(
+                                0
+                            )
+                            .toUpperCase() +
+                            selectedFare.vehicleType.slice(
+                                1
+                            )}{" "}
+                        • ₹
                         {
-                            selectedFare.vehicleType
+                            selectedFare.totalFare
                         }
                     </Text>
                 </TouchableOpacity>
@@ -315,7 +347,7 @@ export default function FareList({
 const styles =
     StyleSheet.create({
         listContent: {
-            paddingBottom: 100,
+            paddingBottom: 90,
         },
 
         card: {
@@ -328,7 +360,7 @@ const styles =
             backgroundColor:
                 "#FFFFFF",
 
-            borderRadius: 16,
+            borderRadius: 18,
 
             padding: 16,
 
@@ -338,25 +370,43 @@ const styles =
 
             borderColor:
                 "#E5E7EB",
+
+            shadowColor:
+                "#000",
+
+            shadowOffset: {
+                width: 0,
+                height: 2,
+            },
+
+            shadowOpacity:
+                0.05,
+
+            shadowRadius: 4,
+
+            elevation: 2,
         },
 
         selectedCard: {
+            borderWidth: 2,
+
             borderColor:
                 theme.COLORS
                     .primary,
 
-            borderWidth: 2,
-
             backgroundColor:
-                "#FFFDF5",
+                "#FFFDF7",
         },
 
         iconContainer: {
-            width: 60,
+            width: 64,
 
-            height: 60,
+            height: 64,
 
-            borderRadius: 30,
+            borderRadius: 32,
+
+            backgroundColor:
+                "#F8FAFC",
 
             justifyContent:
                 "center",
@@ -364,13 +414,10 @@ const styles =
             alignItems:
                 "center",
 
-            backgroundColor:
-                "#F8FAFC",
-
             marginRight: 14,
         },
 
-        details: {
+        infoContainer: {
             flex: 1,
         },
 
@@ -385,7 +432,7 @@ const styles =
             marginBottom: 6,
         },
 
-        subText: {
+        metaText: {
             fontSize: 12,
 
             color: "#64748B",
@@ -393,7 +440,7 @@ const styles =
             marginBottom: 2,
         },
 
-        fareSection: {
+        priceContainer: {
             alignItems:
                 "flex-end",
         },
@@ -412,20 +459,20 @@ const styles =
         selectedBadge: {
             marginTop: 6,
 
-            paddingHorizontal: 10,
-
-            paddingVertical: 4,
+            backgroundColor:
+                "#DCFCE7",
 
             borderRadius: 10,
 
-            backgroundColor:
-                "#DCFCE7",
+            paddingHorizontal: 8,
+
+            paddingVertical: 4,
         },
 
-        selectedText: {
-            color: "#166534",
-
+        selectedBadgeText: {
             fontSize: 11,
+
+            color: "#166534",
 
             fontWeight:
                 "700",
@@ -463,5 +510,25 @@ const styles =
 
             fontWeight:
                 "700",
+        },
+
+        emptyContainer: {
+            flex: 1,
+
+            justifyContent:
+                "center",
+
+            alignItems:
+                "center",
+
+            paddingVertical: 40,
+        },
+
+        emptyText: {
+            marginTop: 12,
+
+            fontSize: 15,
+
+            color: "#94A3B8",
         },
     });

@@ -34,8 +34,11 @@ import { theme } from "../../theme";
 
 type Props = {
     visible: boolean;
+
     location: LocationType | null;
+
     onClose: () => void;
+
     onConfirm: (
         location: LocationType
     ) => void;
@@ -63,29 +66,35 @@ export default function ConfirmPickupLocationModal({
         });
 
     useEffect(() => {
-        if (!location) return;
+        if (
+            location &&
+            visible
+        ) {
+            const newRegion = {
+                latitude:
+                    location.latitude,
 
-        const newRegion = {
-            latitude:
-                location.latitude,
-            longitude:
-                location.longitude,
-            latitudeDelta:
-                0.005,
-            longitudeDelta:
-                0.005,
-        };
+                longitude:
+                    location.longitude,
 
-        setRegion(
-            newRegion
-        );
+                latitudeDelta:
+                    0.005,
 
-        setTimeout(() => {
-            mapRef.current?.animateToRegion(
-                newRegion,
-                500
+                longitudeDelta:
+                    0.005,
+            };
+
+            setRegion(
+                newRegion
             );
-        }, 200);
+
+            setTimeout(() => {
+                mapRef.current?.animateToRegion(
+                    newRegion,
+                    500
+                );
+            }, 300);
+        }
     }, [
         location,
         visible,
@@ -99,8 +108,10 @@ export default function ConfirmPickupLocationModal({
         () => {
             onConfirm({
                 ...location,
+
                 latitude:
                     region.latitude,
+
                 longitude:
                     region.longitude,
             });
@@ -149,7 +160,7 @@ export default function ConfirmPickupLocationModal({
                             styles.title
                         }
                     >
-                        Confirm Pickup Location
+                        Confirm Pickup
                     </Text>
 
                     <View
@@ -162,15 +173,15 @@ export default function ConfirmPickupLocationModal({
                 {/* Map */}
 
                 <View
-                    style={{
-                        flex: 1,
-                    }}
+                    style={
+                        styles.mapContainer
+                    }
                 >
                     <MapView
                         ref={mapRef}
-                        style={{
-                            flex: 1,
-                        }}
+                        style={
+                            styles.map
+                        }
                         region={
                             region
                         }
@@ -192,7 +203,7 @@ export default function ConfirmPickupLocationModal({
                     <View
                         pointerEvents="none"
                         style={
-                            styles.markerContainer
+                            styles.pinContainer
                         }
                     >
                         <Ionicons
@@ -203,7 +214,7 @@ export default function ConfirmPickupLocationModal({
                     </View>
                 </View>
 
-                {/* Bottom Sheet */}
+                {/* Bottom Card */}
 
                 <View
                     style={
@@ -215,7 +226,7 @@ export default function ConfirmPickupLocationModal({
                             styles.heading
                         }
                     >
-                        Confirm Pickup Point
+                        Confirm Pickup Location
                     </Text>
 
                     <Text
@@ -223,9 +234,9 @@ export default function ConfirmPickupLocationModal({
                             styles.description
                         }
                     >
-                        Move the map until the pin
-                        is exactly where you want
-                        the driver to pick you up.
+                        Move the map to
+                        adjust the exact
+                        pickup point.
                     </Text>
 
                     <View
@@ -233,16 +244,21 @@ export default function ConfirmPickupLocationModal({
                             styles.locationCard
                         }
                     >
-                        <Ionicons
-                            name="location-outline"
-                            size={20}
-                            color="#64748B"
-                        />
+                        <View
+                            style={
+                                styles.locationIcon
+                            }
+                        >
+                            <Ionicons
+                                name="navigate"
+                                size={20}
+                                color="#FFFFFF"
+                            />
+                        </View>
 
                         <View
                             style={{
                                 flex: 1,
-                                marginLeft: 10,
                             }}
                         >
                             <Text
@@ -250,15 +266,16 @@ export default function ConfirmPickupLocationModal({
                                     styles.locationLabel
                                 }
                             >
-                                Pickup Location
+                                Pickup
+                                Address
                             </Text>
 
                             <Text
-                                numberOfLines={
-                                    2
-                                }
                                 style={
                                     styles.locationText
+                                }
+                                numberOfLines={
+                                    2
                                 }
                             >
                                 {
@@ -300,99 +317,167 @@ const styles =
 
         header: {
             height: 60,
+
             flexDirection:
                 "row",
+
             alignItems:
                 "center",
+
             justifyContent:
                 "space-between",
+
             paddingHorizontal: 16,
+
             borderBottomWidth: 1,
+
             borderBottomColor:
                 "#E5E7EB",
+
+            backgroundColor:
+                "#FFFFFF",
         },
 
         backButton: {
             width: 40,
+
             height: 40,
+
             justifyContent:
                 "center",
+
             alignItems:
                 "center",
         },
 
         title: {
             fontSize: 18,
+
             fontWeight:
                 "700",
+
             color: "#111827",
         },
 
-        markerContainer: {
+        mapContainer: {
+            flex: 1,
+        },
+
+        map: {
+            flex: 1,
+        },
+
+        pinContainer: {
             position:
                 "absolute",
+
             top: "50%",
+
             left: "50%",
+
             marginLeft:
                 -30,
+
             marginTop:
                 -60,
         },
 
         bottomSheet: {
+            padding: 20,
+
             backgroundColor:
                 "#FFFFFF",
-            padding: 20,
+
             borderTopWidth: 1,
+
             borderTopColor:
                 "#E5E7EB",
         },
 
         heading: {
             fontSize: 18,
+
             fontWeight:
                 "700",
+
             color: "#111827",
+
             marginBottom: 6,
         },
 
         description: {
             fontSize: 14,
+
             color: "#64748B",
+
             marginBottom: 16,
-            lineHeight: 20,
         },
 
         locationCard: {
             flexDirection:
                 "row",
+
+            alignItems:
+                "center",
+
             backgroundColor:
                 "#F8FAFC",
+
             borderRadius: 14,
+
             padding: 14,
+
             marginBottom: 16,
+        },
+
+        locationIcon: {
+            width: 40,
+
+            height: 40,
+
+            borderRadius: 20,
+
+            justifyContent:
+                "center",
+
+            alignItems:
+                "center",
+
+            backgroundColor:
+                theme.COLORS
+                    .primary,
+
+            marginRight: 12,
         },
 
         locationLabel: {
             fontSize: 12,
-            color: "#64748B",
-            marginBottom: 4,
+
             fontWeight:
                 "600",
+
+            color: "#64748B",
+
+            marginBottom: 4,
         },
 
         locationText: {
             fontSize: 14,
+
             color: "#111827",
         },
 
         confirmButton: {
             height: 56,
+
             borderRadius: 14,
+
             justifyContent:
                 "center",
+
             alignItems:
                 "center",
+
             backgroundColor:
                 theme.COLORS
                     .primary,
@@ -400,7 +485,9 @@ const styles =
 
         confirmButtonText: {
             color: "#FFFFFF",
+
             fontSize: 16,
+
             fontWeight:
                 "700",
         },
