@@ -1,17 +1,18 @@
 // components/VehicleTypeSelector.tsx
 
-import React, { useState } from "react";
+import React from "react";
 
 import {
     View,
     Text,
     TouchableOpacity,
     StyleSheet,
+    Image,
 } from "react-native";
 
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-
-import { router } from "expo-router";
+import {
+    router,
+} from "expo-router";
 
 import { theme } from "../../../../theme";
 
@@ -19,138 +20,167 @@ const vehicles = [
     {
         id: "auto",
         label: "Auto",
-        icon: "rickshaw",
+        image: require("../../../../assets/vehicles/auto.png"),
     },
     {
         id: "cab",
         label: "Cab",
-        icon: "car",
+        image: require("../../../../assets/vehicles/car.png"),
     },
     {
         id: "bike",
         label: "Bike",
-        icon: "motorbike",
+        image: require("../../../../assets/vehicles/bike.png"),
     },
     {
         id: "truck",
         label: "Truck",
-        icon: "truck",
+        image: require("../../../../assets/vehicles/truck.png"),
     },
 ];
 
 export default function VehicleTypeSelector() {
-    const [selected, setSelected] = useState("cab");
-
-    const handleVehicleSelect = (vehicleId: string) => {
-        setSelected(vehicleId);
-
+    const handleVehicleSelect = (
+        vehicleId: string
+    ) => {
         router.push({
-            pathname: "/bookingprocess",
+            pathname:
+                "/bookingprocess",
             params: {
-                vehicleType: "",
-                userId: ""
+                vehicleType:
+                    vehicleId,
+                userId: "",
             },
         });
     };
 
     return (
-        <View style={styles.container}>
-            {vehicles.map((vehicle) => {
-                const isSelected = selected === vehicle.id;
-
-                return (
+        <View
+            style={styles.container}
+        >
+            {vehicles.map(
+                (vehicle) => (
                     <TouchableOpacity
-                        key={vehicle.id}
-                        activeOpacity={0.8}
-                        onPress={() =>
-                            handleVehicleSelect(vehicle.id)
+                        key={
+                            vehicle.id
                         }
-                        style={[
-                            styles.vehicleButton,
-                            isSelected && styles.selectedButton,
-                        ]}
+                        activeOpacity={
+                            0.8
+                        }
+                        onPress={() =>
+                            handleVehicleSelect(
+                                vehicle.id
+                            )
+                        }
+                        style={
+                            styles.vehicleButton
+                        }
                     >
-                        <MaterialCommunityIcons
-                            name={vehicle.icon as any}
-                            size={22}
-                            color={
-                                isSelected
-                                    ? theme.COLORS.white
-                                    : theme.COLORS.text
+                        <Image
+                            source={
+                                vehicle.image
                             }
+                            style={
+                                styles.vehicleImage
+                            }
+                            resizeMode="contain"
                         />
 
                         <Text
-                            style={[
-                                styles.vehicleText,
-                                isSelected &&
-                                styles.selectedVehicleText,
-                            ]}
+                            style={
+                                styles.vehicleText
+                            }
                         >
-                            {vehicle.label}
+                            {
+                                vehicle.label
+                            }
                         </Text>
                     </TouchableOpacity>
-                );
-            })}
+                )
+            )}
         </View>
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        marginHorizontal: theme.SPACING.lg,
-        marginVertical: theme.SPACING.md,
-    },
+const styles =
+    StyleSheet.create({
+        container: {
+            flexDirection:
+                "row",
 
-    vehicleButton: {
-        flex: 1,
+            justifyContent:
+                "space-between",
 
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
+            marginHorizontal:
+                theme.SPACING
+                    .lg,
 
-        marginHorizontal: 4,
-
-        paddingVertical: 12,
-
-        backgroundColor: "#F3F4F6",
-
-        borderWidth: 1,
-        borderColor: "#E5E7EB",
-
-        borderRadius: 10,
-    },
-
-    selectedButton: {
-        backgroundColor: theme.COLORS.primary,
-        borderColor: theme.COLORS.primary,
-
-        elevation: 4,
-
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2,
+            marginVertical:
+                theme.SPACING
+                    .md,
         },
-        shadowOpacity: 0.15,
-        shadowRadius: 4,
-    },
 
-    vehicleText: {
-        marginLeft: 6,
+        vehicleButton: {
+            flex: 1,
 
-        fontSize: theme.FONT_SIZES.sm,
+            alignItems:
+                "center",
 
-        fontFamily: theme.FONT.medium,
+            justifyContent:
+                "center",
 
-        color: theme.COLORS.black,
-    },
+            marginHorizontal: 4,
 
-    selectedVehicleText: {
-        color: theme.COLORS.black,
+            paddingVertical: 12,
 
-        fontFamily: theme.FONT.bold,
-    },
-});
+            backgroundColor:
+                theme.COLORS
+                    .card,
+
+            borderWidth: 1,
+
+            borderColor:
+                theme.COLORS
+                    .border,
+
+            borderRadius: 12,
+
+            shadowColor:
+                "#000",
+
+            shadowOffset: {
+                width: 0,
+                height: 2,
+            },
+
+            shadowOpacity:
+                0.05,
+
+            shadowRadius: 4,
+
+            elevation: 2,
+        },
+
+        vehicleImage: {
+            width: 60,
+
+            height: 60,
+
+            marginBottom: 6,
+        },
+
+        vehicleText: {
+            fontSize:
+                theme
+                    .FONT_SIZES
+                    .sm,
+
+            fontFamily:
+                theme.FONT
+                    .medium,
+
+            color:
+                theme.COLORS
+                    .text,
+        },
+    });
