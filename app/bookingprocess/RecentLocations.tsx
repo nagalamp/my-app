@@ -55,7 +55,7 @@ export default function RecentLocations({
         item: SavedRoute;
     }) => (
         <TouchableOpacity
-            activeOpacity={0.85}
+            activeOpacity={0.8}
             style={styles.card}
             onPress={() =>
                 onSelectRoute(item)
@@ -86,10 +86,10 @@ export default function RecentLocations({
                 }
             >
                 <Text
-                    numberOfLines={1}
                     style={
                         styles.routeTitle
                     }
+                    numberOfLines={1}
                 >
                     {item.title}
                 </Text>
@@ -258,7 +258,7 @@ const styles =
             backgroundColor:
                 "#FFFFFF",
 
-            borderRadius: 18,
+            borderRadius: 16,
 
             padding: 16,
 
@@ -278,7 +278,7 @@ const styles =
             },
 
             shadowOpacity:
-                0.06,
+                0.05,
 
             shadowRadius: 4,
 
@@ -306,6 +306,7 @@ const styles =
 
         content: {
             flex: 1,
+
             marginRight: 10,
         },
 
@@ -327,8 +328,6 @@ const styles =
 
             alignItems:
                 "center",
-
-            flex: 1,
         },
 
         pickupDot: {
@@ -344,12 +343,15 @@ const styles =
 
         connectorContainer: {
             paddingLeft: 4,
+
             marginVertical: 4,
         },
 
         connector: {
             width: 1,
+
             height: 16,
+
             backgroundColor:
                 "#D1D5DB",
         },

@@ -9,6 +9,7 @@ import {
     TouchableOpacity,
     Modal,
     Alert,
+    ActivityIndicator,
 } from "react-native";
 
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -24,6 +25,7 @@ import LocationInput, {
 import RecentLocations, {
     SavedRoute,
 } from "./RecentLocations";
+import axiosInstance from "../../api/axios";
 
 import ConfirmPickupLocationModal from "./ConfirmDropLocationModal";
 
@@ -84,7 +86,13 @@ const recentRoutes: SavedRoute[] = [
     },
 ];
 
-export default function Sample() {
+export default function Booking() {
+
+    const [
+        findingDriver,
+        setFindingDriver,
+    ] = useState(false);
+
     const [pickupText, setPickupText] =
         useState("");
 
@@ -192,26 +200,145 @@ export default function Sample() {
         );
     };
 
-    const handleBookRide =
-        () => {
-            if (
-                !selectedFare
-            ) {
-                Alert.alert(
-                    "Select Vehicle",
-                    "Please select a ride."
+
+
+    const handleBookRide = async () => {
+
+        if (!selectedFare) {
+            Alert.alert(
+                "Select Vehicle",
+                "Please select a ride."
+            );
+
+            return;
+        }
+
+        try {
+            setFindingDriver(true);
+
+            const payload = {
+                pickupLocation: {
+                    address:
+                        pickupLocation?.address ||
+                        "",
+                    latitude:
+                        pickupLocation?.latitude,
+                    longitude:
+                        pickupLocation?.longitude,
+                },
+
+                dropLocation: {
+                    address:
+                        dropLocation?.address ||
+                        "",
+                    latitude:
+                        dropLocation?.latitude,
+                    longitude:
+                        dropLocation?.longitude,
+                },
+
+                distance,
+
+                duration,
+
+                vehicleType:
+                    selectedFare.vehicleType,
+
+                totalFare:
+                    selectedFare.totalFare,
+            };
+
+
+
+            console.log(payload)
+
+            const {
+                data,
+            } =
+                await axiosInstance.post(
+                    "/booking/confirm-ride",
+                    payload
                 );
 
-                return;
+            console.log(payload);
+
+            if (!data.success) {
+                throw new Error(
+                    data.message ||
+                    "Failed to confirm ride"
+                );
             }
 
-            Alert.alert(
-                "Ride Confirmeds",
-                `Booking ${selectedFare.vehicleType}
-                
-Fare: ₹${selectedFare.totalFare}`
+            setFindingDriver(false);
+
+            router.push({
+                pathname:
+                    "/confirm-booking",
+
+                params: {
+                    bookingId:
+                        data.data._id,
+
+                    bookingNumber:
+                        data.data
+                            .bookingNumber,
+                    bookingOtp:
+                        data.data.bookingOtp,
+
+                    pickup:
+                        pickupLocation?.address ||
+                        "",
+
+                    drop:
+                        dropLocation?.address ||
+                        "",
+
+                    distance:
+                        distance.toString(),
+
+                    duration:
+                        duration.toString(),
+
+                    vehicleType:
+                        selectedFare.vehicleType,
+
+                    baseFare:
+                        selectedFare.baseFare.toString(),
+
+                    distanceFare:
+                        selectedFare.distanceFare.toString(),
+
+                    timeFare:
+                        selectedFare.timeFare.toString(),
+
+                    totalFare:
+                        selectedFare.totalFare.toString(),
+
+                    bookingStatus:
+                        data.data.status,
+                },
+            });
+        } catch (
+        error: any
+        ) {
+            setFindingDriver(false);
+
+            console.log(
+                "Confirm Ride Error:",
+                error?.response
+                    ?.data || error
             );
-        };
+
+            Alert.alert(
+                "Booking Failed",
+                error?.response
+                    ?.data
+                    ?.message ||
+                error.message ||
+                "Something went wrong"
+            );
+        }
+    };
 
     return (
         <>
@@ -220,7 +347,50 @@ Fare: ₹${selectedFare.totalFare}`
                     styles.container
                 }
             >
-                {/* Header */}
+                <Modal
+                    visible={
+                        findingDriver
+                    }
+                    transparent
+                    animationType="fade"
+                >
+                    <View
+                        style={
+                            styles.loaderOverlay
+                        }
+                    >
+                        <View
+                            style={
+                                styles.loaderCard
+                            }
+                        >
+                            <ActivityIndicator
+                                size="large"
+                                color={
+                                    theme.COLORS
+                                        .primary
+                                }
+                            />
+
+                            <Text
+                                style={
+                                    styles.loaderTitle
+                                }
+                            >
+                                Finding Driver
+                            </Text>
+
+                            <Text
+                                style={
+                                    styles.loaderText
+                                }
+                            >
+                                Finding driver partners
+                                near you...
+                            </Text>
+                        </View>
+                    </View>
+                </Modal>
 
                 <View
                     style={
@@ -538,5 +708,51 @@ const styles =
             fontWeight:
                 "600",
             color: "#111827",
+        },
+        loaderOverlay: {
+            flex: 1,
+
+            backgroundColor:
+                "rgba(0,0,0,0.5)",
+
+            justifyContent:
+                "center",
+
+            alignItems:
+                "center",
+        },
+
+        loaderCard: {
+            width: 300,
+
+            backgroundColor:
+                "#FFFFFF",
+
+            borderRadius: 20,
+
+            padding: 24,
+
+            alignItems:
+                "center",
+        },
+
+        loaderTitle: {
+            marginTop: 16,
+
+            fontSize: 20,
+
+            fontWeight: "700",
+
+            color: "#111827",
+        },
+
+        loaderText: {
+            marginTop: 8,
+
+            textAlign: "center",
+
+            color: "#64748B",
+
+            fontSize: 14,
         },
     });
