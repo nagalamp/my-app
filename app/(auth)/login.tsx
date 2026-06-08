@@ -60,7 +60,7 @@ export default function LoginScreen() {
                     {
                         mobile,
                         deviceType: "mobile",
-                        userType: "driver",
+                        userType: "customer",
                     }
                 );
 
@@ -104,7 +104,7 @@ export default function LoginScreen() {
                     {
                         mobile,
                         otp,
-                        userType: "driver",
+                        userType: "customer",
                     }
                 );
 
@@ -146,7 +146,7 @@ export default function LoginScreen() {
                     {
                         mobile,
                         deviceType: "mobile",
-                        userType: "driver",
+                        userType: "customer",
                     }
                 );
 
