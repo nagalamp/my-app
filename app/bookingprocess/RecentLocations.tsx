@@ -61,115 +61,120 @@ export default function RecentLocations({
                 onSelectRoute(item)
             }
         >
-            {/* Left Icon */}
-
             <View
                 style={
-                    styles.iconContainer
+                    styles.cardTop
                 }
             >
+                <View
+                    style={
+                        styles.iconContainer
+                    }
+                >
+                    <Ionicons
+                        name="time-outline"
+                        size={18}
+                        color={
+                            theme.COLORS
+                                .primary
+                        }
+                    />
+                </View>
+
+                <View
+                    style={
+                        styles.content
+                    }
+                >
+                    <Text
+                        style={
+                            styles.routeTitle
+                        }
+                        numberOfLines={1}
+                    >
+                        {item.title}
+                    </Text>
+
+                    <Text
+                        style={
+                            styles.tripLabel
+                        }
+                    >
+                        Recent Trip
+                    </Text>
+                </View>
+
                 <Ionicons
-                    name="time-outline"
-                    size={24}
+                    name="chevron-forward"
+                    size={18}
                     color={
                         theme.COLORS
-                            .primary
+                            .placeholder
                     }
                 />
             </View>
 
-            {/* Route Details */}
+            <View
+                style={
+                    styles.locationRow
+                }
+            >
+                <View
+                    style={
+                        styles.pickupDot
+                    }
+                />
+
+                <Text
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                    style={
+                        styles.address
+                    }
+                >
+                    {
+                        item.pickup
+                            .address
+                    }
+                </Text>
+            </View>
 
             <View
                 style={
-                    styles.content
+                    styles.connectorContainer
                 }
             >
-                <Text
-                    style={
-                        styles.routeTitle
-                    }
-                    numberOfLines={1}
-                >
-                    {item.title}
-                </Text>
-
-                {/* Pickup */}
-
                 <View
                     style={
-                        styles.locationRow
+                        styles.connector
                     }
-                >
-                    <View
-                        style={
-                            styles.pickupDot
-                        }
-                    />
-
-                    <Text
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                        style={
-                            styles.address
-                        }
-                    >
-                        {
-                            item.pickup
-                                .address
-                        }
-                    </Text>
-                </View>
-
-                {/* Connector */}
-
-                <View
-                    style={
-                        styles.connectorContainer
-                    }
-                >
-                    <View
-                        style={
-                            styles.connector
-                        }
-                    />
-                </View>
-
-                {/* Drop */}
-
-                <View
-                    style={
-                        styles.locationRow
-                    }
-                >
-                    <Ionicons
-                        name="location"
-                        size={12}
-                        color="#EF4444"
-                    />
-
-                    <Text
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                        style={
-                            styles.address
-                        }
-                    >
-                        {
-                            item.drop
-                                .address
-                        }
-                    </Text>
-                </View>
+                />
             </View>
 
-            {/* Arrow */}
+            <View
+                style={
+                    styles.locationRow
+                }
+            >
+                <Ionicons
+                    name="location"
+                    size={12}
+                    color="#EF4444"
+                />
 
-            <Ionicons
-                name="chevron-forward"
-                size={20}
-                color="#94A3B8"
-            />
+                <Text
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                    style={
+                        styles.address
+                    }
+                >
+                    {
+                        item.drop
+                            .address
+                    }
+                </Text>
+            </View>
         </TouchableOpacity>
     );
 
@@ -195,7 +200,10 @@ export default function RecentLocations({
                 <Ionicons
                     name="time-outline"
                     size={18}
-                    color="#64748B"
+                    color={
+                        theme.COLORS
+                            .subtitle
+                    }
                 />
             </View>
 
@@ -221,7 +229,8 @@ export default function RecentLocations({
 const styles =
     StyleSheet.create({
         container: {
-            marginTop: 24,
+            marginTop:
+                theme.SPACING.lg,
         },
 
         header: {
@@ -234,11 +243,15 @@ const styles =
             justifyContent:
                 "space-between",
 
-            marginBottom: 12,
+            marginBottom:
+                theme.SPACING.sm,
         },
 
         heading: {
-            fontSize: 18,
+            fontSize:
+                theme
+                    .FONT_SIZES
+                    .lg,
 
             fontWeight:
                 "700",
@@ -249,25 +262,21 @@ const styles =
         },
 
         card: {
-            flexDirection:
-                "row",
-
-            alignItems:
-                "center",
-
             backgroundColor:
-                "#FFFFFF",
+                theme.COLORS
+                    .card,
 
             borderRadius: 16,
 
-            padding: 16,
-
-            marginBottom: 12,
+            padding: 14,
 
             borderWidth: 1,
 
             borderColor:
-                "#E5E7EB",
+                theme.COLORS
+                    .border,
+
+            marginBottom: 10,
 
             shadowColor:
                 "#000",
@@ -285,12 +294,22 @@ const styles =
             elevation: 2,
         },
 
+        cardTop: {
+            flexDirection:
+                "row",
+
+            alignItems:
+                "center",
+
+            marginBottom: 12,
+        },
+
         iconContainer: {
-            width: 52,
+            width: 40,
 
-            height: 52,
+            height: 40,
 
-            borderRadius: 26,
+            borderRadius: 20,
 
             justifyContent:
                 "center",
@@ -299,27 +318,41 @@ const styles =
                 "center",
 
             backgroundColor:
-                "#FFF7ED",
-
-            marginRight: 14,
-        },
-
-        content: {
-            flex: 1,
+                theme.COLORS
+                    .secondary,
 
             marginRight: 10,
         },
 
+        content: {
+            flex: 1,
+        },
+
         routeTitle: {
-            fontSize: 15,
+            fontSize:
+                theme
+                    .FONT_SIZES
+                    .md,
 
             fontWeight:
                 "700",
 
             color:
-                "#111827",
+                theme.COLORS
+                    .text,
+        },
 
-            marginBottom: 10,
+        tripLabel: {
+            fontSize:
+                theme
+                    .FONT_SIZES
+                    .xs,
+
+            color:
+                theme.COLORS
+                    .subtitle,
+
+            marginTop: 2,
         },
 
         locationRow: {
@@ -331,18 +364,18 @@ const styles =
         },
 
         pickupDot: {
-            width: 10,
+            width: 8,
 
-            height: 10,
+            height: 8,
 
-            borderRadius: 5,
+            borderRadius: 4,
 
             backgroundColor:
                 "#22C55E",
         },
 
         connectorContainer: {
-            paddingLeft: 4,
+            paddingLeft: 3,
 
             marginVertical: 4,
         },
@@ -350,7 +383,7 @@ const styles =
         connector: {
             width: 1,
 
-            height: 16,
+            height: 14,
 
             backgroundColor:
                 "#D1D5DB",
@@ -359,10 +392,15 @@ const styles =
         address: {
             flex: 1,
 
-            marginLeft: 10,
+            marginLeft: 8,
 
-            fontSize: 13,
+            fontSize:
+                theme
+                    .FONT_SIZES
+                    .sm,
 
-            color: "#64748B",
+            color:
+                theme.COLORS
+                    .subtitle,
         },
     });
